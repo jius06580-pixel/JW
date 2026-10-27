@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>칼로리 달력</title>
+<style>
+:root{--green:#477b62;--dark:#315b48;--mint:#eaf3ed;--bg:#faf9f5;--ink:#26352d;--muted:#78847d;--line:#e2e8e2;--red:#bd4b4b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Malgun Gothic",sans-serif}button,input{font:inherit}button{cursor:pointer}.app{max-width:1150px;margin:auto;padding:26px 20px 40px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}.brand{display:flex;align-items:center;gap:12px}.logo{width:46px;height:46px;border-radius:14px;background:var(--green);color:white;display:grid;place-items:center;font-size:24px}h1{font-size:26px;margin:0;letter-spacing:-.7px}.subtitle{font-size:13px;color:var(--muted);margin-top:4px}
+button{transition:background .15s}.primary{background:var(--green);border:1px solid var(--green);color:white;border-radius:10px;padding:11px 15px;font-weight:650}.primary:hover{background:var(--dark)}.secondary,.today-btn{border:1px solid var(--line);background:white;color:var(--ink);border-radius:10px;padding:10px 14px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}.stat,.panel{background:white;border:1px solid var(--line);border-radius:16px}.stat{padding:17px 19px}.stat-label{font-size:13px;color:var(--muted);margin-bottom:7px}.stat-value{font-size:25px;font-weight:750}.stat-value small{font-size:13px;color:var(--muted);font-weight:500;margin-left:4px}
+.layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(320px,.85fr);gap:18px;align-items:start}.panel{overflow:hidden}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 20px;border-bottom:1px solid var(--line)}h2{font-size:17px;margin:0}.month-nav{display:flex;align-items:center;gap:10px}.month-nav strong{font-size:15px;min-width:100px;text-align:center}.arrow{width:32px;height:32px;border:1px solid var(--line);border-radius:9px;background:white;font-size:20px}.calendar{padding:10px 14px 16px}.weekdays,.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.weekdays div{text-align:center;font-size:12px;color:var(--muted);padding:8px 0}.weekdays div:first-child{color:#bd6969}.weekdays div:last-child{color:#6684b2}.day{display:flex;flex-direction:column;gap:7px;min-width:0;min-height:74px;padding:7px 6px;border:1px solid transparent;border-radius:10px;background:white;text-align:left}.day:hover{background:#f4f8f4;border-color:#d6e5da}.day.selected{background:var(--mint);border-color:var(--green)}.day.other{opacity:.35}.day.today .num{text-decoration:underline;text-underline-offset:3px}.num{font-size:13px;font-weight:650}.sun .num{color:#bd6969}.sat .num{color:#6684b2}.kcal{font-size:10px;line-height:1.25;color:var(--green);font-weight:700;overflow-wrap:anywhere}
+.panel-body{padding:18px 20px}.selected-date{font-size:13px;color:var(--muted);margin-top:5px}.total-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px;border-radius:12px;background:var(--mint);margin-bottom:19px}.total-row span{font-size:13px;color:var(--dark)}.total-row strong{font-size:22px;color:var(--dark);white-space:nowrap}.total-row small{font-size:12px;font-weight:500}
+.fields{display:grid;grid-template-columns:minmax(0,1fr) 118px;gap:10px}label{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}input{width:100%;min-width:0;padding:11px 12px;border:1px solid #dce3dc;border-radius:10px;background:white;color:var(--ink);outline:none}input:focus{border-color:var(--green);box-shadow:0 0 0 3px #477b621c}.form-actions{display:flex;gap:8px;margin-top:12px}.form-actions button{flex:1}.form-actions .secondary{display:none}.form-actions.editing .secondary{display:block}.toast{min-height:20px;margin-top:9px;color:var(--green);font-size:12px;line-height:1.5}.toast.error{color:var(--red)}
+.list-head{display:flex;justify-content:space-between;align-items:center;margin:20px 0 10px}.list-head h3{font-size:14px;margin:0}.count{font-size:12px;color:var(--muted)}.food-list{display:flex;flex-direction:column;gap:8px}.food-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px}.food-name{font-size:14px;font-weight:650;overflow-wrap:anywhere}.food-kcal{font-size:13px;color:var(--muted);margin-top:4px}.item-actions{display:flex;gap:5px;flex-shrink:0}.small-btn{padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:white;font-size:12px}.small-btn.delete{color:var(--red)}.empty{padding:22px 10px;border-radius:12px;background:#fafbf9;color:var(--muted);font-size:13px;text-align:center;line-height:1.7}.notice{margin:17px 0 0;font-size:12px;color:var(--muted);line-height:1.6}
+@media(max-width:800px){.app{padding:17px 12px 28px}.layout{grid-template-columns:1fr}.stat{padding:13px 12px}.stat-label{font-size:11px}.stat-value{font-size:21px}.panel-head,.panel-body{padding:16px}.day{min-height:62px;padding:6px 4px}.calendar{padding:9px}.kcal{font-size:9px}}
+@media(max-width:420px){h1{font-size:22px}.logo{width:40px;height:40px}.stats{grid-template-columns:1fr 1fr;gap:7px}.stats .stat:last-child{grid-column:span 2}.day{min-height:55px}.num{font-size:12px}.month-nav{gap:5px}.month-nav strong{min-width:88px;font-size:13px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="brand"><div class="logo">▦</div><div><h1>칼로리 달력</h1><div class="subtitle">먹은 음식과 칼로리를 날짜별로 기록하세요.</div></div></div><button class="today-btn" id="goToday" type="button">오늘 날짜</button></header>
+<section class="stats"><div class="stat"><div class="stat-label">선택한 날짜</div><div class="stat-value" id="summaryDate">—</div></div><div class="stat"><div class="stat-label">하루 총 칼로리</div><div class="stat-value"><span id="summaryTotal">0</span><small>kcal</small></div></div><div class="stat"><div class="stat-label">등록한 음식</div><div class="stat-value"><span id="summaryCount">0</span><small>개</small></div></div></section>
+<div class="layout">
+<section class="panel"><div class="panel-head"><h2>월간 기록</h2><div class="month-nav"><button class="arrow" id="prevMonth" type="button" aria-label="이전 달">‹</button><strong id="monthLabel"></strong><button class="arrow" id="nextMonth" type="button" aria-label="다음 달">›</button></div></div><div class="calendar"><div class="weekdays"><div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div></div><div class="days" id="calendarDays"></div></div></section>
+<section class="panel"><div class="panel-head"><div><h2>음식 기록</h2><div class="selected-date" id="selectedDateLabel"></div></div></div><div class="panel-body">
+<div class="total-row"><span>선택한 날짜의 총 섭취 칼로리</span><strong><span id="dayTotal">0</span> <small>kcal</small></strong></div>
+<form id="foodForm" novalidate><div class="fields"><div><label for="foodName">음식명</label><input id="foodName" type="text" maxlength="80" placeholder="예: 현미밥 한 공기" autocomplete="off"></div><div><label for="foodCalories">칼로리 (kcal)</label><input id="foodCalories" type="number" min="0" max="1000000" step="1" placeholder="예: 300"></div></div><div class="form-actions" id="formActions"><button class="primary" type="button" id="submitBtn">음식 등록</button><button class="secondary" type="button" id="cancelEdit">수정 취소</button></div><div class="toast" id="message" role="status" aria-live="polite"></div></form>
+<div class="list-head"><h3>선택한 날짜의 음식 목록</h3><span class="count" id="foodCount">0개</span></div><div class="food-list" id="foodList"></div><p class="notice">기록은 이 브라우저의 로컬 저장소에 저장됩니다. 브라우저 데이터 삭제 또는 저장 공간 차단 시 기록이 유지되지 않을 수 있습니다. 칼로리는 입력한 값을 기준으로 합산합니다.</p>
+</div></section></div></div>
+<script>
+(function () {
+  'use strict';
+  const KEY = 'calorieCalendarRecords_v2';
+  const byId = id => document.getElementById(id);
+  const current = new Date();
+  let selectedDate = dateKey(current);
+  let viewYear = current.getFullYear();
+  let viewMonth = current.getMonth();
+  let editingId = null;
+  let records = readRecords();
+
+  function dateKey(d) { return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+  function fromKey(key) { const p=key.split('-').map(Number); return new Date(p[0],p[1]-1,p[2]); }
+  function dateText(key) { const d=fromKey(key); return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${['일','월','화','수','목','금','토'][d.getDay()]})`; }
+  function escapeHtml(value) { return String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function readRecords() {
+    try {
+      const raw = window.localStorage.getItem(KEY);
+      if (!raw) return {};
+      const data = JSON.parse(raw);
+      if (!data || typeof data !== 'object' || Array.isArray(data)) return {};
+      Object.keys(data).forEach(key => {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(key) || !Array.isArray(data[key])) { delete data[key]; return; }
+        data[key] = data[key].filter(x => x && typeof x.id === 'string' && typeof x.name === 'string' && Number.isInteger(x.calories) && x.calories >= 0);
+      });
+      return data;
+    } catch (err) { return {}; }
+  }
+  function saveRecords() {
+    try { window.localStorage.setItem(KEY, JSON.stringify(records)); return true; }
+    catch (err) { return false; }
+  }
+  function itemsFor(key) { return Array.isArray(records[key]) ? records[key] : []; }
+  function sumFor(key) { return itemsFor(key).reduce((sum, item) => sum + item.calories, 0); }
+  function message(text, error) { byId('message').textContent=text; byId('message').classList.toggle('error',!!error); }
+  function resetForm() { editingId=null; byId('foodName').value=''; byId('foodCalories').value=''; byId('submitBtn').textContent='음식 등록'; byId('formActions').classList.remove('editing'); }
+
+  function renderCalendar() {
+    byId('monthLabel').textContent = `${viewYear}년 ${viewMonth+1}월`;
+    const first = new Date(viewYear, viewMonth, 1);
+    const start = first.getDay();
+    const lastDate = new Date(viewYear, viewMonth+1, 0).getDate();
+    const previousLast = new Date(viewYear, viewMonth, 0).getDate();
+    const todayKey = dateKey(new Date());
+    let markup = '';
+    for (let index=0; index<42; index++) {
+      let date, number, other=false;
+      if (index < start) { number=previousLast-start+index+1; date=new Date(viewYear,viewMonth-1,number); other=true; }
+      else if (index >= start+lastDate) { number=index-start-lastDate+1; date=new Date(viewYear,viewMonth+1,number); other=true; }
+      else { number=index-start+1; date=new Date(viewYear,viewMonth,number); }
+      const key=dateKey(date), logged=itemsFor(key).length>0;
+      const classes=['day',other?'other':'',key===selectedDate?'selected':'',key===todayKey?'today':'',date.getDay()===0?'sun':'',date.getDay()===6?'sat':''].filter(Boolean).join(' ');
+      const calories = logged ? `<span class="kcal">${sumFor(key).toLocaleString('ko-KR')} kcal</span>` : '';
+      markup += `<button type="button" class="${classes}" data-date="${key}" aria-label="${dateText(key)}"><span class="num">${number}</span>${calories}</button>`;
+    }
+    byId('calendarDays').innerHTML=markup;
+  }
+  function render() {
+    renderCalendar();
+    const listItems=itemsFor(selectedDate), total=sumFor(selectedDate), d=fromKey(selectedDate);
+    byId('summaryDate').textContent=`${d.getMonth()+1}월 ${d.getDate()}일`;
+    byId('summaryTotal').textContent=total.toLocaleString('ko-KR');
+    byId('summaryCount').textContent=listItems.length;
+    byId('dayTotal').textContent=total.toLocaleString('ko-KR');
+    byId('selectedDateLabel').textContent=dateText(selectedDate);
+    byId('foodCount').textContent=listItems.length+'개';
+    if (!listItems.length) {
+      byId('foodList').innerHTML='<div class="empty">이 날짜에 등록된 음식이 없습니다.<br>위 입력란에서 음식을 추가해 보세요.</div>';
+    } else {
+      byId('foodList').innerHTML=listItems.map(item => `<div class="food-item"><div><div class="food-name">${escapeHtml(item.name)}</div><div class="food-kcal">${item.calories.toLocaleString('ko-KR')} kcal</div></div><div class="item-actions"><button class="small-btn" type="button" data-edit="${escapeHtml(item.id)}">수정</button><button class="small-btn delete" type="button" data-delete="${escapeHtml(item.id)}">삭제</button></div></div>`).join('');
+    }
+  }
+  function registerFood() {
+    const name=byId('foodName').value.trim();
+    const raw=byId('foodCalories').value;
+    if (!name) { message('음식명을 입력해 주세요.',true); byId('foodName').focus(); return; }
+    if (raw === '') { message('칼로리를 입력해 주세요.',true); byId('foodCalories').focus(); return; }
+    const calories=Number(raw);
+    if (!Number.isFinite(calories) || calories < 0 || calories > 1000000 || !Number.isInteger(calories)) {
+      message('칼로리는 0 이상의 정수로 입력해 주세요. (최대 1,000,000 kcal)',true); byId('foodCalories').focus(); return;
+    }
+    const list=itemsFor(selectedDate);
+    if (editingId !== null) {
+      const target=list.find(item => item.id === editingId);
+      if (!target) { message('수정할 기록을 찾을 수 없습니다. 다시 등록해 주세요.',true); resetForm(); return; }
+      target.name=name; target.calories=calories;
+    } else {
+      if (!Array.isArray(records[selectedDate])) records[selectedDate]=[];
+      records[selectedDate].push({id:'food_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9),name,calories});
+    }
+    const wasEditing=editingId !== null;
+    // Update the visible screen regardless of whether this browser permits localStorage.
+    resetForm(); render();
+    const saved=saveRecords();
+    message(saved ? (wasEditing?'음식 기록을 수정했습니다.':'음식을 등록했습니다.') : '음식은 목록에 추가됐지만 브라우저 저장은 차단됐습니다. 파일을 다시 열면 기록이 사라질 수 있습니다.', !saved);
+  }
+
+  // The button is type="button" so this one click handler is the single registration path.
+  byId('submitBtn').addEventListener('click', registerFood);
+  byId('foodForm').addEventListener('submit', function(event) { event.preventDefault(); registerFood(); });
+  byId('foodCalories').addEventListener('keydown', function(event) { if (event.key==='Enter') { event.preventDefault(); registerFood(); } });
+  byId('cancelEdit').addEventListener('click', function() { resetForm(); message('수정을 취소했습니다.',false); });
+  byId('calendarDays').addEventListener('click', function(event) {
+    const button=event.target.closest('[data-date]'); if (!button) return;
+    selectedDate=button.dataset.date; const d=fromKey(selectedDate); viewYear=d.getFullYear(); viewMonth=d.getMonth(); resetForm(); message('',false); render();
+  });
+  byId('foodList').addEventListener('click', function(event) {
+    const edit=event.target.closest('[data-edit]'), remove=event.target.closest('[data-delete]');
+    if (edit) {
+      const item=itemsFor(selectedDate).find(entry=>entry.id===edit.dataset.edit);
+      if (!item) { message('수정할 기록을 찾을 수 없습니다.',true); return; }
+      editingId=item.id; byId('foodName').value=item.name; byId('foodCalories').value=item.calories; byId('submitBtn').textContent='수정 내용 저장'; byId('formActions').classList.add('editing'); message('내용을 수정한 뒤 저장을 눌러 주세요.',false); byId('foodName').focus();
+    }
+    if (remove) {
+      const arr=itemsFor(selectedDate), index=arr.findIndex(entry=>entry.id===remove.dataset.delete);
+      if (index<0) { message('삭제할 기록을 찾을 수 없습니다.',true); return; }
+      const deleted=arr.splice(index,1)[0]; if (arr.length===0) delete records[selectedDate];
+      if (editingId===deleted.id) resetForm(); render();
+      const saved=saveRecords(); message(saved?'음식 기록을 삭제했습니다.':'화면에서는 삭제했지만 브라우저 저장은 차단됐습니다.',!saved);
+    }
+  });
+  byId('prevMonth').addEventListener('click',function(){const d=new Date(viewYear,viewMonth-1,1);viewYear=d.getFullYear();viewMonth=d.getMonth();renderCalendar();});
+  byId('nextMonth').addEventListener('click',function(){const d=new Date(viewYear,viewMonth+1,1);viewYear=d.getFullYear();viewMonth=d.getMonth();renderCalendar();});
+  byId('goToday').addEventListener('click',function(){const d=new Date();selectedDate=dateKey(d);viewYear=d.getFullYear();viewMonth=d.getMonth();resetForm();message('',false);render();});
+  render();
+})();
+</script>
+</body>
+</html>
